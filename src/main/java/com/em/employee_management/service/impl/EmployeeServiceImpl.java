@@ -9,6 +9,7 @@ import com.em.employee_management.config.AppConfig.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -57,16 +58,20 @@ public class EmployeeServiceImpl  implements EmployeeService {
 
     @Override
     public EmployeeDto getSingleEmployee(Long id) {
-        return null;
+        Employee employee = employeeRepository.findById(id).orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+        return modelMapper.map(employee, EmployeeDto.class);
     }
 
     @Override
     public List<EmployeeDto> getAllEmployees() {
-        return List.of();
+        List<Employee> employees = employeeRepository.findAll();
+        List<EmployeeDto> dtoList = employees.stream().map((element) -> modelMapper.map(element, EmployeeDto.class)).toList();
+
+        return dtoList;
     }
 
-    @Override
-    public EmployeeDto getEmployeeByEmpCodeAndCompanyName(String empCode, String companyName) {
-        return null;
-    }
+//    @Override
+//    public EmployeeDto getEmployeeByEmpCodeAndCompanyName(String empCode, String companyName) {
+//        return null;
+//    }
 }
