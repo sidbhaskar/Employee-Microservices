@@ -70,8 +70,4 @@ public class EmployeeServiceImpl  implements EmployeeService {
         return dtoList;
     }
 
-//    @Override
-//    public EmployeeDto getEmployeeByEmpCodeAndCompanyName(String empCode, String companyName) {
-//        return null;
-//    }
 }
