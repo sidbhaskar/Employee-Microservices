@@ -1,5 +1,7 @@
 package com.em.employee_management.service.impl;
 
+import com.em.employee_management.exception.BadRequestException;
+import com.em.employee_management.exception.ResourceNotFoundException;
 import com.em.employee_management.model.dto.EmployeeDto;
 import com.em.employee_management.model.entity.Employee;
 import com.em.employee_management.repository.EmployeeRepository;
@@ -38,12 +40,12 @@ public class EmployeeServiceImpl  implements EmployeeService {
     @Override
     public EmployeeDto updateEmployee(Long id, EmployeeDto employeeDto) {
         if(id == null || employeeDto.getId() == null){
-            throw new RuntimeException("Please provide employee id");
+            throw new BadRequestException("Please provide employee id");
         }
         if(!Objects.equals(id, employeeDto.getId())) {
-            throw new RuntimeException("Id mismatch");
+            throw new BadRequestException("Id mismatch");
         }
-        employeeRepository.findById(id).orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+        employeeRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + id));
         Employee entity = modelMapper.map(employeeDto, Employee.class);
 //        entity.setUpdatedAt(LocalDateTime.now());
         Employee updatedEmployee = employeeRepository.save(entity);
@@ -52,21 +54,30 @@ public class EmployeeServiceImpl  implements EmployeeService {
 
     @Override
     public void deleteEmployee(Long id) {
-        Employee employee = employeeRepository.findById(id).orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+        Employee employee = employeeRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + id));
         employeeRepository.delete(employee);
     }
 
     @Override
     public EmployeeDto getSingleEmployee(Long id) {
-        Employee employee = employeeRepository.findById(id).orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+        Employee employee = employeeRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + id));
         return modelMapper.map(employee, EmployeeDto.class);
     }
 
     @Override
     public List<EmployeeDto> getAllEmployees() {
         List<Employee> employees = employeeRepository.findAll();
+        if(employees.isEmpty()){
+            throw new ResourceNotFoundException("Employee not found");
+        }
         return employees.stream().map((element) -> modelMapper.map(element, EmployeeDto.class)).toList();
 
+    }
+
+    @Override
+    public EmployeeDto getEmployeeByEmpCodeAndCompanyName(String empCode, String companyName) {
+        Employee employee = employeeRepository.findByEmpCodeAndCompanyName(empCode, companyName).orElseThrow(() -> new ResourceNotFoundException("Employee not found with empCode: " + empCode + " and companyName: " + companyName));
+        return modelMapper.map(employee, EmployeeDto.class);
     }
 
 }
